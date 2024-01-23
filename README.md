@@ -12,3 +12,8 @@
 
 - Implement user controller in `controller_implement.py`
 - Run `main.py`
+
+## Characteristics
+1. Adjust camera view (in `main.py`)
+2. Visualize contact (in `main.py`)
+3. Mouse interaction.

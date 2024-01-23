@@ -1,14 +1,13 @@
-import mujoco as mj
-from mujoco.glfw import glfw
-import numpy as np
-import os
 from controller_implement import *
 
 
 
 ############################## Edit This ! ##############################
 
-xml_path = 'models/hello.xml' #xml file (assumes this is in the same folder as this file)
+# xml_path = 'models/ur5e/scene.xml' #xml file
+# xml_path = 'models/hello.xml' #xml file
+xml_path = 'models/free_body.xml' #xml file
+
 simend = 10 #simulation time
 
 ############################## Edit This ! ##############################
@@ -18,22 +17,10 @@ simend = 10 #simulation time
 if __name__ == "__main__":
 
 
-    print_camera_config = 0 #set to 1 to print camera config
-                            #this is useful for initializing view of the model)
-
-
-    # For callback functions
-    button_left = False
-    button_middle = False
-    button_right = False
-    lastx = 0
-    lasty = 0
-
-
     def keyboard(window, key, scancode, act, mods):
         if act == glfw.PRESS and key == glfw.KEY_BACKSPACE:
-            mj.mj_resetData(model, data)
-            mj.mj_forward(model, data)
+            mjc.mj_resetData(model, data)
+            mjc.mj_forward(model, data)
 
     def mouse_button(window, button, act, mods):
         # update button state
@@ -81,47 +68,83 @@ if __name__ == "__main__":
         # determine action based on mouse button
         if button_right:
             if mod_shift:
-                action = mj.mjtMouse.mjMOUSE_MOVE_H
+                action = mjc.mjtMouse.mjMOUSE_MOVE_H
             else:
-                action = mj.mjtMouse.mjMOUSE_MOVE_V
+                action = mjc.mjtMouse.mjMOUSE_MOVE_V
         elif button_left:
             if mod_shift:
-                action = mj.mjtMouse.mjMOUSE_ROTATE_H
+                action = mjc.mjtMouse.mjMOUSE_ROTATE_H
             else:
-                action = mj.mjtMouse.mjMOUSE_ROTATE_V
+                action = mjc.mjtMouse.mjMOUSE_ROTATE_V
         else:
-            action = mj.mjtMouse.mjMOUSE_ZOOM
+            action = mjc.mjtMouse.mjMOUSE_ZOOM
 
-        mj.mjv_moveCamera(model, action, dx/height,
+        mjc.mjv_moveCamera(model, action, dx/height,
                         dy/height, scene, cam)
 
     def scroll(window, xoffset, yoffset):
-        action = mj.mjtMouse.mjMOUSE_ZOOM
-        mj.mjv_moveCamera(model, action, 0.0, -0.05 *
+        action = mjc.mjtMouse.mjMOUSE_ZOOM
+        mjc.mjv_moveCamera(model, action, 0.0, -0.05 *
                         yoffset, scene, cam)
 
+##############################################################################################
+        
+    print_camera_config = 1 #set to 1 to print camera config
+                            #this is useful for initializing view of the model)
+    
+    # For callback functions
+    button_left = False
+    button_middle = False
+    button_right = False
+    lastx = 0
+    lasty = 0
+    
     #get the full path
     dirname = os.path.dirname(__file__)
     abspath = os.path.join(dirname + "/" + xml_path)
     xml_path = abspath
 
     # MuJoCo data structures
-    model = mj.MjModel.from_xml_path(xml_path)  # MuJoCo model
-    data = mj.MjData(model)                # MuJoCo data
-    cam = mj.MjvCamera()                        # Abstract camera
-    opt = mj.MjvOption()                        # visualization options
+    model = mjc.MjModel.from_xml_path(xml_path)  # MuJoCo model
+    data = mjc.MjData(model)                # MuJoCo data
+    cam = mjc.MjvCamera()                        # Abstract camera
+    opt = mjc.MjvOption()                        # visualization options
 
     # Init GLFW, create window, make OpenGL context current, request v-sync
     glfw.init()
-    window = glfw.create_window(1200, 900, "MuJoCo GLFW Viewer", None, None)
+    window = glfw.create_window(900, 600, "MuJoCo GLFW Viewer", None, None)
     glfw.make_context_current(window)
     glfw.swap_interval(1)
 
     # initialize visualization data structures
-    mj.mjv_defaultCamera(cam)
-    mj.mjv_defaultOption(opt)
-    scene = mj.MjvScene(model, maxgeom=10000)
-    context = mj.MjrContext(model, mj.mjtFontScale.mjFONTSCALE_150.value)
+    mjc.mjv_defaultCamera(cam)
+    mjc.mjv_defaultOption(opt)
+    scene = mjc.MjvScene(model, maxgeom=10000)
+    context = mjc.MjrContext(model, mjc.mjtFontScale.mjFONTSCALE_150.value)
+
+
+    #################### Visualize Contact ####################
+    # # visualize contact frames and forces, make body transparent
+    # mjc.mjv_defaultOption(opt)
+    # opt.flags[mjc.mjtVisFlag.mjVIS_CONTACTPOINT] = True
+    # opt.flags[mjc.mjtVisFlag.mjVIS_CONTACTFORCE] = True
+    # opt.flags[mjc.mjtVisFlag.mjVIS_TRANSPARENT] = True
+    # # tweak scales of contact visualization elements
+    # model.vis.scale.contactwidth = 0.1
+    # model.vis.scale.contactheight = 0.03
+    # model.vis.scale.forcewidth = 0.05
+    # model.vis.map.force = 0.3
+    #################### Visualize Contact ####################
+
+
+    #################### Init Camera View Config ####################
+    # Example on how to set camera configuration
+    cam.azimuth = -125
+    cam.elevation = -11.43
+    cam.distance = 1.7
+    cam.lookat = np.array([-0.01, 0.06, 0.00])
+    #################### Init Camera View Config ####################
+
 
     # install GLFW mouse and keyboard callbacks
     glfw.set_key_callback(window, keyboard)
@@ -129,24 +152,19 @@ if __name__ == "__main__":
     glfw.set_mouse_button_callback(window, mouse_button)
     glfw.set_scroll_callback(window, scroll)
 
-    # Example on how to set camera configuration
-    # cam.azimuth = 90
-    # cam.elevation = -45
-    # cam.distance = 2
-    # cam.lookat = np.array([0.0, 0.0, 0])
-
-
-    #initialize the controller
+    # initialize the controller
     init_controller(model,data)
 
-    #set the controller
-    mj.set_mjcb_control(controller)
+    # set the controller
+    mjc.set_mjcb_control(controller)
 
+
+    # sim loop 
     while not glfw.window_should_close(window):
         time_prev = data.time
 
         while (data.time - time_prev < 1.0/60.0):
-            mj.mj_step(model, data)
+            mjc.mj_step(model, data)
 
         if (data.time>=simend):
             break;
@@ -154,17 +172,19 @@ if __name__ == "__main__":
         # get framebuffer viewport
         viewport_width, viewport_height = glfw.get_framebuffer_size(
             window)
-        viewport = mj.MjrRect(0, 0, viewport_width, viewport_height)
+        viewport = mjc.MjrRect(0, 0, viewport_width, viewport_height)
 
-        #print camera configuration (help to initialize the view)
-        # if (print_camera_config==1):
-        #     print('cam.azimuth =',cam.azimuth,';','cam.elevation =',cam.elevation,';','cam.distance = ',cam.distance)
-        #     print('cam.lookat =np.array([',cam.lookat[0],',',cam.lookat[1],',',cam.lookat[2],'])')
+        #################### Print Camera View Config in Terminal ####################
+        # print camera configuration (help to initialize the view)
+        # print('cam.azimuth =',cam.azimuth,';','cam.elevation =',cam.elevation,';','cam.distance = ',cam.distance)
+        # print('cam.lookat =np.array([',cam.lookat[0],',',cam.lookat[1],',',cam.lookat[2],'])')
+        #################### Print Camera View Config in Terminal ####################
+
 
         # Update scene and render
-        mj.mjv_updateScene(model, data, opt, None, cam,
-                        mj.mjtCatBit.mjCAT_ALL.value, scene)
-        mj.mjr_render(viewport, scene, context)
+        mjc.mjv_updateScene(model, data, opt, None, cam,
+                        mjc.mjtCatBit.mjCAT_ALL.value, scene)
+        mjc.mjr_render(viewport, scene, context)
 
         # swap OpenGL buffers (blocking call due to v-sync)
         glfw.swap_buffers(window)
