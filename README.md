@@ -1,15 +1,17 @@
 ## Use MuJoCo Viewer with native python binding
-> See `passive_viewer_template.py` in this repo.
+> See `Passive-Viewer/passive_viewer_template.py`
+
+<br>
 
 <br>
 
 ## A Simple MuJoCo GLFW Viewer
 
 > Based on MuJoCo Python Binding and GLFW
+> See `GLFW-Viewer/`
 
 
 
-<br>
 
 
 
