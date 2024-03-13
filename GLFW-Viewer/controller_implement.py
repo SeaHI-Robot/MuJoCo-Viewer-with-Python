@@ -1,3 +1,14 @@
+"""
+Description:
+    Implement controller here
+
+Auther:
+    SeaHI-Robot:  https://github.com/SeaHI-Robot
+    Contact_Me: seahirobot@gmail.com
+    
+For learning purposes only, do not spread without authorization.
+"""
+
 import mujoco as mjc
 from mujoco.glfw import glfw
 import os

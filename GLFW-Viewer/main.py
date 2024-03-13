@@ -1,12 +1,23 @@
-from controller_implement import *
+"""
+Description:
+    The main script
 
+Auther:
+    SeaHI-Robot:  https://github.com/SeaHI-Robot
+    Contact_Me: seahirobot@gmail.com
+    
+For learning purposes only, do not spread without authorization.
+"""
+
+
+from controller_implement import *
 
 
 ############################## Edit This ! ##############################
 
-# xml_path = 'models/ur5e/scene.xml' #xml file
-# xml_path = 'models/hello.xml' #xml file
-xml_path = 'models/free_body.xml' #xml file
+# xml_path = '../models/ur5e/scene.xml' #xml file
+# xml_path = '../models/hello.xml' #xml file
+xml_path = '../models/free_body.xml' #xml file
 
 simend = 10 #simulation time
 
